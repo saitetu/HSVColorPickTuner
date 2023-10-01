@@ -42,7 +42,7 @@ class CameraApp(QMainWindow):
             self.image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # HSV範囲内の色のみを抽出
-            if len(self.points) == 3:
+            if len(self.points) == 4:
                 hsv_image = cv2.cvtColor(self.image, cv2.COLOR_RGB2HSV)
                 lower_bound = np.min(self.points, axis=0)
                 upper_bound = np.max(self.points, axis=0)
@@ -56,7 +56,7 @@ class CameraApp(QMainWindow):
             self.label.setPixmap(pixmap)
 
     def get_pixel_color(self, event):
-        if len(self.points) < 3:
+        if len(self.points) < 4:
             x = event.pos().x()
             y = event.pos().y()
             pixel_color = self.image[y, x]
