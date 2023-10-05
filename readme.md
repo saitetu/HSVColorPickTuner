@@ -1,4 +1,7 @@
 ## HSV Color Pick Tuner
+![org Image](image/org.png)
+
+![hsv Image](image/hsv.png)
 
 ### How to use
 
