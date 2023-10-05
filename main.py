@@ -15,10 +15,7 @@ class CameraApp(QMainWindow):
         super().__init__()
 
         self.initUI()
-        self.points = []  # クリックした点の座標を格納するリスト
-        self.info_label = QLabel(self)  # HSV範囲を表示するためのラベル
-        self.info_label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        self.layout.addWidget(self.info_label, alignment=Qt.AlignTop | Qt.AlignLeft)
+        self.points = []
 
     def initUI(self):
         self.central_widget = QWidget()
@@ -28,7 +25,7 @@ class CameraApp(QMainWindow):
 
         self.label = QLabel(self)
 
-        self.setWindowTitle('Camera App')
+        self.setWindowTitle('HSV Color Pick Tuner')
         self.setGeometry(100, 100, 1000, 600)
 
         self.cap = cv2.VideoCapture(0)
@@ -42,9 +39,7 @@ class CameraApp(QMainWindow):
         self.image = None
 
         self.label.mousePressEvent = self.get_pixel_color
-        self.hsv_ranges_list = QListWidget(self)  # HSV範囲を表示するためのリストウィジェット
-        # self.layout.addWidget(self.label)
-        # self.layout.addWidget(self.hsv_ranges_list, alignment=Qt.AlignTop | Qt.AlignRight)
+        self.hsv_ranges_list = QListWidget(self)
         main_layout = QHBoxLayout(self)
         main_layout.addWidget(self.label)
         main_layout.addWidget(self.hsv_ranges_list)
@@ -52,11 +47,15 @@ class CameraApp(QMainWindow):
         widget.setLayout(main_layout)
         self.layout.addWidget(widget)
 
-        self.change_image = QPushButton("画像を切り替え", self)
+        self.info_label = QLabel(self)
+        self.info_label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.layout.addWidget(self.info_label, alignment=Qt.AlignTop | Qt.AlignLeft)
+
+        self.change_image = QPushButton("Change Image View", self)
         self.change_image.clicked.connect(self.change_image_view)
         self.layout.addWidget(self.change_image)
 
-        self.delete_button = QPushButton("選択した範囲を削除", self)
+        self.delete_button = QPushButton("Delete select color", self)
         self.delete_button.clicked.connect(self.delete_selected_range)
         self.layout.addWidget(self.delete_button)
 
@@ -66,7 +65,6 @@ class CameraApp(QMainWindow):
             self.image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             self.frame = self.image
 
-            # HSV範囲内の色のみを抽出
             if len(self.points) > 4 and self._isHsv:
                 hsv_image = cv2.cvtColor(self.image, cv2.COLOR_RGB2HSV)
                 lower_bound = np.min(self.points, axis=0)
@@ -80,11 +78,9 @@ class CameraApp(QMainWindow):
                 else:
                     self.mask = cv2.inRange(hsv_image, lower_bound, upper_bound)
                 self.image = cv2.bitwise_and(self.image, self.image, mask=self.mask)
-
-                # lower_boundとupper_boundを展開してtext_to_displayに代入
                 text_to_display = f"Lower Bound: H({lower_bound[0]}), S({lower_bound[1]}), V({lower_bound[2]})\nUpper Bound: H({upper_bound[0]}), S({upper_bound[1]}), V({upper_bound[2]})"
             else:
-                text_to_display = ""
+                text_to_display = "Select 5 points"
 
             self.info_label.setText(text_to_display)
             h, w, ch = self.image.shape
@@ -107,12 +103,12 @@ class CameraApp(QMainWindow):
     def change_image_view(self):
         self._isHsv = not self._isHsv
         if self._isHsv:
-            self.change_image.setText("元画像を表示")
+            self.change_image.setText("View ORG image")
         else:
-            self.change_image.setText("HSV画像を表示")
+            self.change_image.setText("View HSV image")
     
     def update_info_label(self):
-        self.hsv_ranges_list.clear()  # リストをクリアしてから新しい範囲を追加
+        self.hsv_ranges_list.clear()
         for idx, hsv_color in enumerate(self.points, start=1):
             color_preview = ColorPreviewWidget(hsv_color)
             item = QListWidgetItem(f"Range {idx}: H({hsv_color[0]}), S({hsv_color[1]}), V({hsv_color[2]})")
@@ -126,7 +122,6 @@ class CameraApp(QMainWindow):
         for item in selected_items:
             row = self.hsv_ranges_list.row(item)
             self.hsv_ranges_list.takeItem(row)
-            # pointsリストからも対応する要素を削除
             del self.points[row]
 
 
