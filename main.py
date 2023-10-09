@@ -75,10 +75,11 @@ class CameraApp(QMainWindow):
                     mask1 = cv2.inRange(hsv_image, lower_bound, upper_bound)
                     mask2 = cv2.inRange(hsv_image, np.array([0, lower_bound[1], lower_bound[2]]), upper_bound2)
                     self.mask = cv2.bitwise_or(mask1, mask2)
+                    text_to_display = f"Lower Bound: H({lower_bound[0]}), S({lower_bound[1]}), V({lower_bound[2]})\nUpper Bound: H({upper_bound[0]}), S({upper_bound[1]}), V({upper_bound[2]}\nLower Bound2: H({0}), S({lower_bound[1]}), V({lower_bound[2]})\nUpper Bound2: H({upper_bound2[0]}), S({upper_bound2[1]}), V({upper_bound2[2]}"
                 else:
                     self.mask = cv2.inRange(hsv_image, lower_bound, upper_bound)
+                    text_to_display = f"Lower Bound: H({lower_bound[0]}), S({lower_bound[1]}), V({lower_bound[2]})\nUpper Bound: H({upper_bound[0]}), S({upper_bound[1]}), V({upper_bound[2]})"
                 self.image = cv2.bitwise_and(self.image, self.image, mask=self.mask)
-                text_to_display = f"Lower Bound: H({lower_bound[0]}), S({lower_bound[1]}), V({lower_bound[2]})\nUpper Bound: H({upper_bound[0]}), S({upper_bound[1]}), V({upper_bound[2]})"
             else:
                 text_to_display = "Select 5 points"
 
